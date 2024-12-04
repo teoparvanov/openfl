@@ -38,5 +38,26 @@ This release is focused on enabling a great developer experience for OpenFL user
 6. Deprecating the Interactive API
 7. A selection of key OpenFL tutorials reworked from Python Native API to Workflow API. Check out the updated [Tutorials folder](https://github.com/securefederatedai/openfl/tree/develop/openfl-tutorials/experimental/workflow)
 
-### OpenFL 1.8
-TBA
+### OpenFL 1.8 (TBA)
+In this release, we intend to continue improving the developer experience, alongside several new features:
+1. Experimental support for Flower/OpenFL integration
+2. Removing the Python Native API and Interactive API from OpenFL (incl. framework code, deprecated docs and tutorials)
+3. Promoting Workflow API from experimental to a core OpenFL feature
+4. Revised APIs, documentation, and testing harness for 3rd party aggregation algorithms (both TaskRunner API and Workflow API)
+5. Enhanced support for the Federated Evaluation, incl. for Workflow API
+6. Upgrading base task runners to latest ML framework versions (TensorFlow 2.18/Keras 3, and PyTorch 2.5)
+
+### OpenFL 1.9 (TBA)
+This release will gradually shift the focus towards enhanced privacy and security:
+1. Designing a ConfidentialFederatedRuntime for Workflow API using Confidential Containers (CoCo)
+2. SecAgg/SecAgg+ implementation (usable in both Workflow API and TaskRunner API)
+3. Design & PoC for differential privacy as a native feature of OpenFL (via TaskRunner API/FL plan?)
+4. (TBD) Introducing utilities and documentation for packaging TaskRunner API workspaces as Confidential Containers (CoCo) for broader TEE compatibility
+5. Ability to run arbitrary Flower federations with OpenFL as the back-end
+6. PoC for enhanced privacy by narrowing the scope of what gets sent by Flower across the OpenFL network
+
+### OpenFL 2.0 (TBA)
+This is the first "next gen" OpenFL release:
+1. Deprecating the TaskRunner API
+2. Implementing the ConfidentialFederatedRuntime for Workflow API
+3. ...
