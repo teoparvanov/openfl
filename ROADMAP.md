@@ -23,8 +23,8 @@ This causes community fragmentation and distracts from some of the bigger proble
  first at the communication and storage layer, and make these components modular across other frameworks. Our aim is also to provide a library for FL algorithms, compression methods,
  that can both be applied and interpreted easily.
 
- ### 1.4 Confidential computing support
- Although OpenFL currently relies on Intel® SGX for trusted execution, the long term vision is towards broader confidential computing ecosystem support. This can be achieved by packaging OpenFL workspaces and workflows as Confidential Containers (CoCo), which supports a spectrum of TEE backends, including Intel® SGX and TDX, Arm TrustZone, and AMD SEV.
+### 1.4 Confidential computing support
+Although OpenFL currently relies on Intel® SGX for trusted execution, the long term vision is towards broader confidential computing ecosystem support. This can be achieved by packaging OpenFL workspaces and workflows as Confidential Containers (CoCo), which supports a spectrum of TEE backends, including Intel® SGX and TDX, Arm TrustZone, and AMD SEV.
 
 ## Upcoming OpenFL releases
 
@@ -40,25 +40,30 @@ This release is focused on enabling a great developer experience for OpenFL user
 
 ### OpenFL 1.8 (TBA)
 In this release, we intend to continue improving the developer experience, alongside several new features:
-1. Experimental support for Flower/OpenFL integration
+1. Promoting Workflow API to a core OpenFL feature, after additional enhancements
 2. Removing the Python Native API and Interactive API from OpenFL (incl. framework code, deprecated docs and tutorials)
-3. Promoting Workflow API from experimental to a core OpenFL feature
-4. Revised APIs, documentation, and testing harness for 3rd party aggregation algorithms (both TaskRunner API and Workflow API)
-5. Enhanced support for the Federated Evaluation, incl. for Workflow API
-6. Upgrading base task runners to latest ML framework versions (TensorFlow 2.18/Keras 3, and PyTorch 2.5)
-7. Design & PoC for Differential Privacy as a native feature of OpenFL (via TaskRunner API)
+3. Upgrading PyTorch base task runners and example workspaces to PyTorch 2.5
+4. Further streamlining the tutorials and examples for Worfklow API and TaskRunner API
+5. Adding support for remote attestation of OpenFL participants with ITA
+6. Failure recovery: aggregator persistence and support for restarts during an FL experiment
+7. Additional enhancements to straggler handling
+8. Gaudi (3?) support
+9. Support for data loading from S3 (private) storage
+10. Design & PoC for Differential Privacy as a core feature of OpenFL (via TaskRunner API)
 
 ### OpenFL 1.9 (TBA)
 This release will gradually shift the focus towards enhanced privacy and security:
-1. Designing a ConfidentialFederatedRuntime for Workflow API using Confidential Containers (CoCo)
-2. SecAgg/SecAgg+ implementation (usable in both Workflow API and TaskRunner API)
-3. Experimental support for Differential Privacy in OpenFL (via TaskRunner API)
-4. (TBD) Introducing utilities and documentation for packaging TaskRunner API workspaces as Confidential Containers (CoCo) for broader TEE compatibility
-5. Ability to run arbitrary Flower federations with OpenFL as the back-end
-6. PoC for enhanced privacy by narrowing the scope of what gets sent by Flower across the OpenFL network
+1. PoC for packaging OpenFL participants as Confidential Containers (CoCo) - a step towards broader TEE compatibility
+2. Designing a SecureFederatedRuntime for Workflow API using Confidential Containers (CoCo)
+   - (TBD) incl. support for a SaaS Governor?
+3. Revised APIs, documentation, and testing harness for 3rd party aggregation algorithms (both TaskRunner API and Workflow API)
+4. Support for Federated Analytics via TaskRunner API
+5. Experimental SecAgg/SecAgg+ implementation (usable in both Workflow API and TaskRunner API)
+6. Experimental support for Differential Privacy in OpenFL (via TaskRunner API)
+7. PoC for low-level Flower/OpenFL integration (incl. narrowing the scope of what gets sent by Flower across the OpenFL network)
 
 ### OpenFL 2.0 (TBA)
 This is the first "next gen" OpenFL release:
 1. Deprecating the TaskRunner API
-2. Implementing the ConfidentialFederatedRuntime for Workflow API
+2. Implementing the SecureFederatedRuntime for Workflow API
 3. ...
