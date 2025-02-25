@@ -297,8 +297,8 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
 
     # Combine the GitHub metrics into a single figure
     github_fig = sp.make_subplots(
-        rows=5, cols=2, 
-        specs=[[{"type": "xy"}, {"type": "xy"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
+        rows=4, cols=2, 
+        specs=[[{"type": "xy"}, {"type": "xy"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
         vertical_spacing=0.1,
         subplot_titles=("Number of Stars Over Time", "Number of Forks Over Time", "Merged Pull Requests", "Code Contributors (All)", "Average Issue Close Time", "Code Contributors (Non-Intel)", "Average PR Response Time", "Average Discussion Response Time")
     )
@@ -322,7 +322,7 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
     github_fig.update_layout(
         height=1000,
         title={
-            'text': "GitHub Metrics",
+            'text': "OpenFL GitHub Metrics",
             'y': 0.98,
             'x': 0.5,
             'xanchor': 'center',
@@ -353,7 +353,7 @@ def create_social_media_metrics_figure():
         rows=1, cols=2, 
         specs=[[{"type": "indicator"}, {"type": "indicator"}]],
         vertical_spacing=0.1,
-        subplot_titles=("Twitter #OpenFL mentions (MOCK)", "LinkedIn #OpenFL mentions (MOCK)")
+        subplot_titles=("Twitter #OpenFL mentions", "LinkedIn #OpenFL mentions")
     )
     for trace in twitter_followers_gauge.data:
         social_media_fig.add_trace(trace, row=1, col=1)
@@ -442,10 +442,10 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
 
     # Combine the gauges into a single figure
     binaries_fig = sp.make_subplots(
-        rows=1, cols=2, 
+        rows=1, cols=2,
         specs=[[{"type": "indicator"}, {"type": "indicator"}]],
         vertical_spacing=0.1,
-        subplot_titles=("Monthly PyPi downloads (MOCK)", "Monthly docker downloads (MOCK)")
+        subplot_titles=("Monthly PyPi downloads", "Monthly docker downloads")
     )
     for trace in pypi_gauge.data:
         binaries_fig.add_trace(trace, row=1, col=1)
@@ -455,7 +455,7 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
     binaries_fig.update_layout(
         height=400,
         title={
-            'text': "OpenFL Binaries",
+            'text': "OpenFL Binaries (latest stable)",
             'y': 0.98,
             'x': 0.5,
             'xanchor': 'center',
@@ -466,6 +466,47 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
     )
 
     return binaries_fig
+
+def create_openfl_contrib_figure():
+    # Create mock gauges for Merged Pull Requests and Code Contributors
+    pr_gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=75,  # Mock value
+        gauge={'axis': {'range': [0, 100]}}
+    ))
+
+    contributors_gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=50,  # Mock value
+        gauge={'axis': {'range': [0, 100]}}
+    ))
+
+    # Combine the gauges into a single figure
+    contrib_fig = sp.make_subplots(
+        rows=1, cols=2,
+        specs=[[{"type": "indicator"}, {"type": "indicator"}]],
+        vertical_spacing=0.1,
+        subplot_titles=("Merged Pull Requests", "Code Contributors")
+    )
+    for trace in pr_gauge.data:
+        contrib_fig.add_trace(trace, row=1, col=1)
+    for trace in contributors_gauge.data:
+        contrib_fig.add_trace(trace, row=1, col=2)
+
+    contrib_fig.update_layout(
+        height=400,
+        title={
+            'text': "OpenFL-Contrib GitHub Metrics",
+            'y': 0.98,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': {'size': 24}
+        },
+        showlegend=False
+    )
+
+    return contrib_fig
 
 def create_dashboard(year, month, api_token, use_mock=False):
     if use_mock:
@@ -484,6 +525,7 @@ def create_dashboard(year, month, api_token, use_mock=False):
     binaries_fig = create_openfl_binaries_figure(pypi_downloads, docker_downloads)
     github_fig = create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count)
     social_media_fig = create_social_media_metrics_figure()
+    contrib_fig = create_openfl_contrib_figure()
 
     # Get the month name
     month_name = datetime(year, month, 1).strftime('%B')
@@ -491,9 +533,12 @@ def create_dashboard(year, month, api_token, use_mock=False):
     # Combine all figures into a single HTML file with a title
     with open("/mnt/c/Users/tparvano/Downloads/openfl_engagement_dashboard.html", "w") as f:
         f.write(f"<h1 style='text-align:center;'>OpenFL Community Engagement Metrics for {month_name} {year}</h1>")
+        if use_mock:
+            f.write("<h2 style='text-align:center; background-color: yellow;'>(RENDERED WITH MOCK DATA)</h2>")
         f.write(key_partners_fig.to_html(full_html=False, include_plotlyjs='cdn'))
         f.write(binaries_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(github_fig.to_html(full_html=False, include_plotlyjs=False))
+        f.write(contrib_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(social_media_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write("</body></html>")
     
