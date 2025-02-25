@@ -301,7 +301,7 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
         rows=4, cols=2, 
         specs=[[{"type": "xy"}, {"type": "xy"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
         vertical_spacing=0.1,
-        subplot_titles=("Number of Stars Over Time", "Number of Forks Over Time", "Merged Pull Requests", "Code Contributors (All)", "Average Issue Close Time", "Code Contributors (Non-Intel)", "Average PR Response Time", "Average Discussion Response Time")
+        subplot_titles=("Number of Stars Over Time", "Number of Forks Over Time", "Merged Pull Requests", "Code Contributors (All)", "Average Issue Close Time (Days)", "Code Contributors (Non-Intel)", "Average PR Response Time (Days)", "Average Discussion Response Time (Days)")
     )
     for trace in stars_line_chart.data:
         github_fig.add_trace(trace, row=1, col=1)
