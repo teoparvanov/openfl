@@ -11,6 +11,7 @@ import os
 from PIL import Image
 
 OPENFL_GITHUB_API_URL = "https://api.github.com/repos/securefederatedai/openfl"
+OPENFL_CONTRIB_GITHUB_API_URL = "https://api.github.com/repos/securefederatedai/openfl-contrib"
 PEPY_API_URL = "https://pepy.tech/api/projects/openfl"
 KNOWN_EXTERNAL_CONTRIBUTORS = {
     "refai06",
@@ -39,7 +40,7 @@ def fetch_forks_data(api_token):
     # Fetch forks data with progress bar
     forks_data = []
     page = 1
-    with tqdm(desc="Fetching forks", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL forks", unit="page") as pbar:
         while True:
             response = requests.get(f"{OPENFL_GITHUB_API_URL}/forks", headers=headers, params={"page": page, "per_page": 100}).json()
             if not response:
@@ -55,7 +56,7 @@ def fetch_stars_data(api_token):
     # Fetch stars data with progress bar
     stars_data = []
     page = 1
-    with tqdm(desc="Fetching stars", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL stars", unit="page") as pbar:
         while True:
             response = requests.get(f"{OPENFL_GITHUB_API_URL}/stargazers", headers=headers, params={"page": page, "per_page": 100}).json()
             if not response:
@@ -105,7 +106,7 @@ def fetch_monthly_data(year, month, api_token):
 
     # Fetch pull requests merged in the month with optimized filtering
     page = 1
-    with tqdm(desc="Fetching merged pull requests", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL merged PRs", unit="page") as pbar:
         while True:
             pulls = requests.get(
                 f"{OPENFL_GITHUB_API_URL}/pulls",
@@ -140,7 +141,7 @@ def fetch_monthly_data(year, month, api_token):
 
     # Fetch issues created and closed in the quarter with optimized filtering
     page = 1
-    with tqdm(desc="Fetching closed issues", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL closed issues", unit="page") as pbar:
         while True:
             issues = requests.get(
                 f"{OPENFL_GITHUB_API_URL}/issues",
@@ -169,7 +170,7 @@ def fetch_monthly_data(year, month, api_token):
 
     # Fetch discussions created in the quarter and measure time to first comment
     page = 1
-    with tqdm(desc="Fetching discussions", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL discussions", unit="page") as pbar:
         while True:
             discussions = requests.get(
                 f"{OPENFL_GITHUB_API_URL}/discussions",
@@ -467,8 +468,6 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
 
     return binaries_fig
 
-OPENFL_CONTRIB_GITHUB_API_URL = "https://api.github.com/repos/securefederatedai/openfl-contrib"
-
 def fetch_openfl_contrib_data(year, month, api_token):
     headers = {"Authorization": f"token {api_token}"}
     # Calculate the start and end of the given month
@@ -481,8 +480,9 @@ def fetch_openfl_contrib_data(year, month, api_token):
 
     # Fetch pull requests data for the selected month
     pulls_data = []
+    contributors_set = set()
     page = 1
-    with tqdm(desc="Fetching openfl-contrib pull requests", unit="page") as pbar:
+    with tqdm(desc="Fetching openfl-contrib PRs", unit="page") as pbar:
         while True:
             response = requests.get(
                 f"{OPENFL_CONTRIB_GITHUB_API_URL}/pulls",
@@ -499,36 +499,15 @@ def fetch_openfl_contrib_data(year, month, api_token):
             ).json()
             if not response:
                 break
-            pulls_data.extend(response)
+            for pull in response:
+                if 'merged_at' in pull and pull['merged_at'] and month_start <= pull['merged_at'] < month_end:
+                    pulls_data.append(pull)
+                    if 'user' in pull and pull['user']:
+                        contributors_set.add(pull['user']['login'])
             page += 1
             pbar.update(1)
 
-    # Fetch contributors data for the selected month
-    contributors_data = []
-    page = 1
-    with tqdm(desc="Fetching openfl-contrib contributors", unit="page") as pbar:
-        while True:
-            response = requests.get(
-                f"{OPENFL_CONTRIB_GITHUB_API_URL}/contributors",
-                headers=headers,
-                params={
-                    "page": page,
-                    "per_page": 100
-                }
-            ).json()
-            if not response:
-                break
-            for contributor in response:
-                if 'weeks' in contributor:
-                    for week in contributor['weeks']:
-                        week_start = datetime.strptime(week['w'], '%Y-%m-%dT%H:%M:%SZ')
-                        if start_date <= week_start < end_date:
-                            contributors_data.append(contributor)
-                            break
-            page += 1
-            pbar.update(1)
-
-    return pulls_data, contributors_data
+    return pulls_data, contributors_set
 
 def create_openfl_contrib_figure(year, month, api_token=None, use_mock=False):
     if use_mock:
@@ -537,9 +516,9 @@ def create_openfl_contrib_figure(year, month, api_token=None, use_mock=False):
         contributors_count = 50  # Mock value
     else:
         # Fetch data from openfl-contrib repository
-        pulls_data, contributors_data = fetch_openfl_contrib_data(year, month, api_token)
+        pulls_data, contributors_set = fetch_openfl_contrib_data(year, month, api_token)
         pr_count = len(pulls_data)
-        contributors_count = len(contributors_data)
+        contributors_count = len(contributors_set)
 
     # Create gauges for Merged Pull Requests and Code Contributors
     pr_gauge = go.Figure(go.Indicator(
