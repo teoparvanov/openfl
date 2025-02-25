@@ -253,37 +253,43 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
     pr_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=monthly_pulls,
-        gauge={'axis': {'range': [0, 100]}}
+        gauge={'axis': {'range': [0, 100]}},
+        title={'text': "Merged Pull Requests"}
     ))
 
     contributors_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=monthly_contributors,
-        gauge={'axis': {'range': [0, 100]}}
+        gauge={'axis': {'range': [0, 100]}},
+        title={'text': "Code Contributors (All)"}
     ))
 
     non_intel_contributors_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=non_intel_contributors,
-        gauge={'axis': {'range': [0, 100]}}
+        gauge={'axis': {'range': [0, 100]}},
+        title={'text': "Code Contributors (Non-Intel)"}
     ))
 
     issue_close_time_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=avg_issue_close_time,
-        gauge={'axis': {'range': [0, 30]}}
+        gauge={'axis': {'range': [0, 30]}},
+        title={'text': "Average Issue Close Time (Days)"}
     ))
 
     pr_response_time_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=avg_pr_response_time,
-        gauge={'axis': {'range': [0, 30]}}
+        gauge={'axis': {'range': [0, 30]}},
+        title={'text': "Average PR Response Time (Days)"}
     ))
 
     discussion_response_time_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=avg_discussion_response_time,
-        gauge={'axis': {'range': [0, 30]}}
+        gauge={'axis': {'range': [0, 30]}},
+        title={'text': "Average Discussion Response Time (Days)"}
     ))
 
     # Create a line chart for forks
@@ -300,8 +306,7 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
     github_fig = sp.make_subplots(
         rows=4, cols=2, 
         specs=[[{"type": "xy"}, {"type": "xy"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
-        vertical_spacing=0.1,
-        subplot_titles=("Number of Stars Over Time", "Number of Forks Over Time", "Merged Pull Requests", "Code Contributors (All)", "Average Issue Close Time (Days)", "Code Contributors (Non-Intel)", "Average PR Response Time (Days)", "Average Discussion Response Time (Days)")
+        vertical_spacing=0.1
     )
     for trace in stars_line_chart.data:
         github_fig.add_trace(trace, row=1, col=1)
@@ -340,21 +345,22 @@ def create_social_media_metrics_figure():
     twitter_followers_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=5000,  # Mock value
-        gauge={'axis': {'range': [0, 10000]}}
+        gauge={'axis': {'range': [0, 10000]}},
+        title={'text': "Twitter #OpenFL mentions"}
     ))
 
     linkedin_followers_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=3000,  # Mock value
-        gauge={'axis': {'range': [0, 10000]}}
+        gauge={'axis': {'range': [0, 10000]}},
+        title={'text': "LinkedIn #OpenFL mentions"}
     ))
 
     # Combine the social media metrics into a single figure
     social_media_fig = sp.make_subplots(
         rows=1, cols=2, 
         specs=[[{"type": "indicator"}, {"type": "indicator"}]],
-        vertical_spacing=0.1,
-        subplot_titles=("Twitter #OpenFL mentions", "LinkedIn #OpenFL mentions")
+        vertical_spacing=0.1
     )
     for trace in twitter_followers_gauge.data:
         social_media_fig.add_trace(trace, row=1, col=1)
@@ -432,21 +438,22 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
     pypi_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=pypi_downloads,
-        gauge={'axis': {'range': [0, 5000]}}
+        gauge={'axis': {'range': [0, 5000]}},
+        title={'text': "Monthly PyPi downloads"}
     ))
 
     docker_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=docker_downloads,
-        gauge={'axis': {'range': [0, 5000]}}
+        gauge={'axis': {'range': [0, 5000]}},
+        title={'text': "Monthly docker downloads"}
     ))
 
     # Combine the gauges into a single figure
     binaries_fig = sp.make_subplots(
         rows=1, cols=2,
         specs=[[{"type": "indicator"}, {"type": "indicator"}]],
-        vertical_spacing=0.1,
-        subplot_titles=("Monthly PyPi downloads", "Monthly docker downloads")
+        vertical_spacing=0.1
     )
     for trace in pypi_gauge.data:
         binaries_fig.add_trace(trace, row=1, col=1)
@@ -524,21 +531,22 @@ def create_openfl_contrib_figure(year, month, api_token=None, use_mock=False):
     pr_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=pr_count,
-        gauge={'axis': {'range': [0, 100]}}
+        gauge={'axis': {'range': [0, 100]}},
+        title={'text': "Merged Pull Requests"}
     ))
 
     contributors_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=contributors_count,
-        gauge={'axis': {'range': [0, 100]}}
+        gauge={'axis': {'range': [0, 100]}},
+        title={'text': "Code Contributors"}
     ))
 
     # Combine the gauges into a single figure
     contrib_fig = sp.make_subplots(
         rows=1, cols=2,
         specs=[[{"type": "indicator"}, {"type": "indicator"}]],
-        vertical_spacing=0.1,
-        subplot_titles=("Merged Pull Requests", "Code Contributors")
+        vertical_spacing=0.1
     )
     for trace in pr_gauge.data:
         contrib_fig.add_trace(trace, row=1, col=1)
