@@ -12,14 +12,18 @@ from PIL import Image
 
 OPENFL_GITHUB_API_URL = "https://api.github.com/repos/securefederatedai/openfl"
 OPENFL_CONTRIB_GITHUB_API_URL = "https://api.github.com/repos/securefederatedai/openfl-contrib"
-PEPY_API_URL = "https://pepy.tech/api/projects/openfl"
+
 KNOWN_EXTERNAL_CONTRIBUTORS = {
     "refai06",
     "ishant162",
-    "scngupta-dsp"
+    "scngupta-dsp",
+    "changhongyan123"
 }
 
-def fetch_github_data(api_token):
+def fetch_github_data():
+    api_token = os.getenv("GITHUB_API_TOKEN")
+    if not api_token:
+        raise ValueError("GITHUB_API_TOKEN environment variable not set")
     headers = {"Authorization": f"token {api_token}"}
     # Fetch repository data
     repo_data = requests.get(OPENFL_GITHUB_API_URL, headers=headers).json()
@@ -35,7 +39,10 @@ def fetch_github_data(api_token):
 
     return repo_data, issues_data, pulls_data, contributors_data
 
-def fetch_forks_data(api_token):
+def fetch_forks_data():
+    api_token = os.getenv("GITHUB_API_TOKEN")
+    if not api_token:
+        raise ValueError("GITHUB_API_TOKEN environment variable not set")
     headers = {"Authorization": f"token {api_token}"}
     # Fetch forks data with progress bar
     forks_data = []
@@ -50,7 +57,10 @@ def fetch_forks_data(api_token):
             pbar.update(1)
     return forks_data
 
-def fetch_stars_data(api_token):
+def fetch_stars_data():
+    api_token = os.getenv("GITHUB_API_TOKEN")
+    if not api_token:
+        raise ValueError("GITHUB_API_TOKEN environment variable not set")
     headers = {"Authorization": f"token {api_token}"}
     headers["Accept"] = "application/vnd.github.star+json"
     # Fetch stars data with progress bar
@@ -74,7 +84,10 @@ def fetch_quarter_dates(year, month):
     end_date = start_date + relativedelta(months=3)
     return start_date, end_date
 
-def fetch_monthly_data(year, month, api_token):
+def fetch_monthly_data(year, month):
+    api_token = os.getenv("GITHUB_API_TOKEN")
+    if not api_token:
+        raise ValueError("GITHUB_API_TOKEN environment variable not set")
     headers = {"Authorization": f"token {api_token}"}
     # Calculate the start and end of the given month
     start_date = datetime(year, month, 1)
@@ -208,7 +221,7 @@ def fetch_monthly_data(year, month, api_token):
     avg_issue_close_time = (total_issue_close_time / closed_issues_count) / 86400 if closed_issues_count > 0 else 0
 
     # Fetch forks data
-    forks_data = fetch_forks_data(api_token)
+    forks_data = fetch_forks_data()
 
     # Filter forks data up to the specified month
     forks_count = []
@@ -221,7 +234,7 @@ def fetch_monthly_data(year, month, api_token):
     forks_count.sort()
 
     # Fetch stars data
-    stars_data = fetch_stars_data(api_token)
+    stars_data = fetch_stars_data()
 
     # Filter stars data up to the specified month
     stars_count = []
@@ -475,7 +488,10 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
 
     return binaries_fig
 
-def fetch_openfl_contrib_data(year, month, api_token):
+def fetch_openfl_contrib_data(year, month):
+    api_token = os.getenv("GITHUB_API_TOKEN")
+    if not api_token:
+        raise ValueError("GITHUB_API_TOKEN environment variable not set")
     headers = {"Authorization": f"token {api_token}"}
     # Calculate the start and end of the given month
     start_date = datetime(year, month, 1)
@@ -516,14 +532,14 @@ def fetch_openfl_contrib_data(year, month, api_token):
 
     return pulls_data, contributors_set
 
-def create_openfl_contrib_figure(year, month, api_token=None, use_mock=False):
+def create_openfl_contrib_figure(year, month, use_mock=False):
     if use_mock:
         # Use mock data
         pr_count = 75  # Mock value
         contributors_count = 50  # Mock value
     else:
         # Fetch data from openfl-contrib repository
-        pulls_data, contributors_set = fetch_openfl_contrib_data(year, month, api_token)
+        pulls_data, contributors_set = fetch_openfl_contrib_data(year, month)
         pr_count = len(pulls_data)
         contributors_count = len(contributors_set)
 
@@ -568,7 +584,7 @@ def create_openfl_contrib_figure(year, month, api_token=None, use_mock=False):
 
     return contrib_fig
 
-def create_dashboard(year, month, api_token, use_mock=False):
+def create_dashboard(year, month, use_mock=False):
     if use_mock:
         # Use mock data
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = create_mock_data()
@@ -576,7 +592,7 @@ def create_dashboard(year, month, api_token, use_mock=False):
         docker_downloads = 500  # Mock value
     else:
         # Fetch monthly data
-        monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = fetch_monthly_data(year, month, api_token)
+        monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = fetch_monthly_data(year, month)
         pypi_downloads = fetch_pypi_downloads()
         docker_downloads = fetch_docker_downloads()
 
@@ -585,7 +601,7 @@ def create_dashboard(year, month, api_token, use_mock=False):
     binaries_fig = create_openfl_binaries_figure(pypi_downloads, docker_downloads)
     github_fig = create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count)
     social_media_fig = create_social_media_metrics_figure()
-    contrib_fig = create_openfl_contrib_figure(year, month, api_token, use_mock)
+    contrib_fig = create_openfl_contrib_figure(year, month, use_mock)
 
     # Get the month name
     month_name = datetime(year, month, 1).strftime('%B')
@@ -608,14 +624,10 @@ def main():
     parser = argparse.ArgumentParser(description="Generate OpenFL Engagement Metrics Dashboard")
     parser.add_argument("--year", type=int, required=True, help="Year for the dashboard")
     parser.add_argument("--month", type=int, required=True, help="Month for the dashboard")
-    parser.add_argument("--token", type=str, help="GitHub API token")
     parser.add_argument("--mock", action="store_true", help="Use mock data instead of fetching from APIs")
     args = parser.parse_args()
 
-    if not args.mock and not args.token:
-        parser.error("--token is required unless --mock is provided")
-
-    create_dashboard(year=args.year, month=args.month, api_token=args.token, use_mock=args.mock)
+    create_dashboard(year=args.year, month=args.month, use_mock=args.mock)
 
 if __name__ == "__main__":
     main()
