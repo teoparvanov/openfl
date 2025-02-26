@@ -355,18 +355,18 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
 
 def create_social_media_metrics_figure():
     # Create mock social media metrics gauges
-    twitter_followers_gauge = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=5000,  # Mock value
-        gauge={'axis': {'range': [0, 10000]}},
-        title={'text': "Twitter #OpenFL mentions"}
-    ))
-
     linkedin_followers_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=3000,  # Mock value
         gauge={'axis': {'range': [0, 10000]}},
         title={'text': "LinkedIn #OpenFL mentions"}
+    ))
+        
+    x_followers_gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=5000,  # Mock value
+        gauge={'axis': {'range': [0, 10000]}},
+        title={'text': "X #OpenFL mentions"}
     ))
 
     # Combine the social media metrics into a single figure
@@ -375,10 +375,12 @@ def create_social_media_metrics_figure():
         specs=[[{"type": "indicator"}, {"type": "indicator"}]],
         vertical_spacing=0.1
     )
-    for trace in twitter_followers_gauge.data:
-        social_media_fig.add_trace(trace, row=1, col=1)
+
     for trace in linkedin_followers_gauge.data:
+        social_media_fig.add_trace(trace, row=1, col=1)
+    for trace in x_followers_gauge.data:
         social_media_fig.add_trace(trace, row=1, col=2)
+
 
     social_media_fig.update_layout(
         height=400,
