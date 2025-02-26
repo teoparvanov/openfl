@@ -357,29 +357,38 @@ def create_social_media_metrics_figure():
     # Create mock social media metrics gauges
     linkedin_followers_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=3000,  # Mock value
+        value=4,  # Mock value
         gauge={'axis': {'range': [0, 10000]}},
         title={'text': "LinkedIn #OpenFL mentions"}
     ))
         
     x_followers_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=5000,  # Mock value
+        value=1,  # Mock value
         gauge={'axis': {'range': [0, 10000]}},
         title={'text': "X #OpenFL mentions"}
     ))
 
+    community_meeting_attendees_gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=18,  # Mock value
+        gauge={'axis': {'range': [0, 100]}},
+        title={'text': "Community Meeting Attendees"}
+    ))
+
     # Combine the social media metrics into a single figure
     social_media_fig = sp.make_subplots(
-        rows=1, cols=2, 
-        specs=[[{"type": "indicator"}, {"type": "indicator"}]],
+        rows=1, cols=3,
+        specs=[[{"type": "indicator"}, {"type": "indicator"}, {"type": "indicator"}]],
         vertical_spacing=0.1
     )
 
     for trace in linkedin_followers_gauge.data:
         social_media_fig.add_trace(trace, row=1, col=1)
-    for trace in x_followers_gauge.data:
+    for trace in community_meeting_attendees_gauge.data:
         social_media_fig.add_trace(trace, row=1, col=2)
+    for trace in x_followers_gauge.data:
+        social_media_fig.add_trace(trace, row=1, col=3)
 
 
     social_media_fig.update_layout(
