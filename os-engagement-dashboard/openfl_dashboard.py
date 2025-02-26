@@ -358,14 +358,14 @@ def create_social_media_metrics_figure():
     linkedin_followers_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=4,  # Mock value
-        gauge={'axis': {'range': [0, 10000]}},
+        gauge={'axis': {'range': [0, 50]}},
         title={'text': "LinkedIn #OpenFL mentions"}
     ))
         
     x_followers_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=1,  # Mock value
-        gauge={'axis': {'range': [0, 10000]}},
+        gauge={'axis': {'range': [0, 50]}},
         title={'text': "X #OpenFL mentions"}
     ))
 
@@ -451,11 +451,11 @@ def create_key_partners_figure():
 
 def fetch_pypi_downloads():
     # Placeholder for actual retrieval of PyPi download data
-    return 1000  # Mock value
+    return 359  # Mock value
 
 def fetch_docker_downloads():
     # Placeholder for actual retrieval of Docker download data
-    return 500  # Mock value
+    return 8  # Mock value
 
 def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
     # Create gauges for PyPi and Docker downloads
