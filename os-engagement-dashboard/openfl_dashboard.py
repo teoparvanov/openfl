@@ -305,41 +305,27 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
         title={'text': "Average Discussion Response Time (Days)"}
     ))
 
-    # Create a line chart for forks
-    forks_df = pd.DataFrame(forks_count, columns=['created_at'])
-    forks_df['count'] = range(1, len(forks_df) + 1)
-    forks_line_chart = px.line(forks_df, x='created_at', y='count', title='Number of Forks Over Time')
-
-    # Create a line chart for stars
-    stars_df = pd.DataFrame(stars_count, columns=['starred_at'])
-    stars_df['count'] = range(1, len(stars_df) + 1)
-    stars_line_chart = px.line(stars_df, x='starred_at', y='count', title='Number of Stars Over Time')
-
     # Combine the GitHub metrics into a single figure
     github_fig = sp.make_subplots(
-        rows=4, cols=2, 
-        specs=[[{"type": "xy"}, {"type": "xy"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
+        rows=3, cols=2, 
+        specs=[[{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
         vertical_spacing=0.1
     )
-    for trace in stars_line_chart.data:
-        github_fig.add_trace(trace, row=1, col=1)
-    for trace in forks_line_chart.data:
-        github_fig.add_trace(trace, row=1, col=2)
     for trace in pr_gauge.data:
-        github_fig.add_trace(trace, row=2, col=1)
+        github_fig.add_trace(trace, row=1, col=1)
     for trace in contributors_gauge.data:
-        github_fig.add_trace(trace, row=2, col=2)
+        github_fig.add_trace(trace, row=1, col=2)
     for trace in issue_close_time_gauge.data:
-        github_fig.add_trace(trace, row=3, col=1)
+        github_fig.add_trace(trace, row=2, col=1)
     for trace in non_intel_contributors_gauge.data:
-        github_fig.add_trace(trace, row=3, col=2)
+        github_fig.add_trace(trace, row=2, col=2)
     for trace in pr_response_time_gauge.data:
-        github_fig.add_trace(trace, row=4, col=1)
+        github_fig.add_trace(trace, row=3, col=1)
     for trace in discussion_response_time_gauge.data:
-        github_fig.add_trace(trace, row=4, col=2)
+        github_fig.add_trace(trace, row=3, col=2)
 
     github_fig.update_layout(
-        height=1000,
+        height=800,
         title={
             'text': "OpenFL GitHub Metrics",
             'y': 0.98,
@@ -595,6 +581,44 @@ def create_openfl_contrib_figure(year, month, use_mock=False):
 
     return contrib_fig
 
+def create_initial_engagement_figure(forks_count, stars_count):
+    # Create a line chart for forks
+    forks_df = pd.DataFrame(forks_count, columns=['created_at'])
+    forks_df['count'] = range(1, len(forks_df) + 1)
+    forks_line_chart = px.line(forks_df, x='created_at', y='count')
+
+    # Create a line chart for stars
+    stars_df = pd.DataFrame(stars_count, columns=['starred_at'])
+    stars_df['count'] = range(1, len(stars_df) + 1)
+    stars_line_chart = px.line(stars_df, x='starred_at', y='count')
+
+    # Combine the initial engagement metrics into a single figure
+    initial_engagement_fig = sp.make_subplots(
+        rows=1, cols=2,
+        specs=[[{"type": "xy"}, {"type": "xy"}]],
+        subplot_titles=("Number of Stars Over Time", "Number of Forks Over Time"),
+        vertical_spacing=0.1
+    )
+    for trace in stars_line_chart.data:
+        initial_engagement_fig.add_trace(trace, row=1, col=1)
+    for trace in forks_line_chart.data:
+        initial_engagement_fig.add_trace(trace, row=1, col=2)
+
+    initial_engagement_fig.update_layout(
+        height=400,
+        title={
+            'text': "Initial Engagement",
+            'y': 0.98,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': {'size': 24}
+        },
+        showlegend=False
+    )
+
+    return initial_engagement_fig
+
 def create_dashboard(year, month, use_mock=False):
     if use_mock:
         # Use mock data
@@ -608,6 +632,7 @@ def create_dashboard(year, month, use_mock=False):
         docker_downloads = fetch_docker_downloads()
 
     # Create figures for GitHub and social media metrics
+    initial_engagement_fig = create_initial_engagement_figure(forks_count, stars_count)
     key_partners_fig = create_key_partners_figure()
     binaries_fig = create_openfl_binaries_figure(pypi_downloads, docker_downloads)
     github_fig = create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count)
@@ -619,10 +644,11 @@ def create_dashboard(year, month, use_mock=False):
 
     # Combine all figures into a single HTML file with a title
     with open("/mnt/c/Users/tparvano/Downloads/openfl_engagement_dashboard.html", "w") as f:
-        f.write(f"<h1 style='text-align:center;'>OpenFL Community Engagement Metrics for {month_name} {year}</h1>")
+        f.write(f"<h1 style='text-align:center;'>OpenFL Community Engagement Dashboard for {month_name} {year}</h1>")
         if use_mock:
             f.write("<h2 style='text-align:center; background-color: yellow;'>(RENDERED WITH MOCK DATA)</h2>")
-        f.write(key_partners_fig.to_html(full_html=False, include_plotlyjs='cdn'))
+        f.write(initial_engagement_fig.to_html(full_html=False, include_plotlyjs='cdn'))
+        f.write(key_partners_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(binaries_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(github_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(contrib_fig.to_html(full_html=False, include_plotlyjs=False))
@@ -632,7 +658,7 @@ def create_dashboard(year, month, use_mock=False):
     print("Combined plot saved as openfl_engagement_dashboard.html. Open this file in a web browser to view the plot.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate OpenFL Engagement Metrics Dashboard")
+    parser = argparse.ArgumentParser(description="Generate OpenFL Engagement Dashboard")
     parser.add_argument("--year", type=int, required=True, help="Year for the dashboard")
     parser.add_argument("--month", type=int, required=True, help="Month for the dashboard")
     parser.add_argument("--mock", action="store_true", help="Use mock data instead of fetching from APIs")
