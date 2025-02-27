@@ -44,10 +44,14 @@ def fetch_forks_data():
     if not api_token:
         raise ValueError("GITHUB_API_TOKEN environment variable not set")
     headers = {"Authorization": f"token {api_token}"}
+    # Fetch the total number of pages for forks
+    response = requests.get(f"{OPENFL_GITHUB_API_URL}/forks", headers=headers, params={"per_page": 100})
+    total_pages = int(response.headers.get('Link', '').split(',')[1].split('&page=')[1].split('>')[0]) if 'Link' in response.headers else 1
+
     # Fetch forks data with progress bar
     forks_data = []
     page = 1
-    with tqdm(desc="Fetching OpenFL forks", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL forks", total=total_pages, unit="page") as pbar:
         while True:
             response = requests.get(f"{OPENFL_GITHUB_API_URL}/forks", headers=headers, params={"page": page, "per_page": 100}).json()
             if not response:
@@ -63,10 +67,14 @@ def fetch_stars_data():
         raise ValueError("GITHUB_API_TOKEN environment variable not set")
     headers = {"Authorization": f"token {api_token}"}
     headers["Accept"] = "application/vnd.github.star+json"
+    # Fetch the total number of pages for stars
+    response = requests.get(f"{OPENFL_GITHUB_API_URL}/stargazers", headers=headers, params={"per_page": 100})
+    total_pages = int(response.headers.get('Link', '').split(',')[1].split('&page=')[1].split('>')[0]) if 'Link' in response.headers else 1
+
     # Fetch stars data with progress bar
     stars_data = []
     page = 1
-    with tqdm(desc="Fetching OpenFL stars", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL stars", total=total_pages, unit="page") as pbar:
         while True:
             response = requests.get(f"{OPENFL_GITHUB_API_URL}/stargazers", headers=headers, params={"page": page, "per_page": 100}).json()
             if not response:
@@ -117,9 +125,24 @@ def fetch_monthly_data(year, month):
     total_discussion_response_time = 0
     discussion_response_count = 0
 
+    # Fetch the total number of pages for pull requests
+    response = requests.get(
+        f"{OPENFL_GITHUB_API_URL}/pulls",
+        headers=headers,
+        params={
+            "state": "closed",
+            "sort": "updated",
+            "direction": "desc",
+            "per_page": 100,
+            "since": month_start,
+            "until": month_end
+        }
+    )
+    total_pages = int(response.headers.get('Link', '').split(',')[1].split('&page=')[1].split('>')[0]) if 'Link' in response.headers else 1
+
     # Fetch pull requests merged in the month with optimized filtering
     page = 1
-    with tqdm(desc="Fetching OpenFL merged PRs", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL merged PRs", total=total_pages, unit="page") as pbar:
         while True:
             pulls = requests.get(
                 f"{OPENFL_GITHUB_API_URL}/pulls",
@@ -152,9 +175,24 @@ def fetch_monthly_data(year, month):
             page += 1
             pbar.update(1)
 
+    # Fetch the total number of pages for issues
+    response = requests.get(
+        f"{OPENFL_GITHUB_API_URL}/issues",
+        headers=headers,
+        params={
+            "state": "closed",
+            "sort": "updated",
+            "direction": "desc",
+            "per_page": 100,
+            "since": quarter_start,
+            "until": quarter_end
+        }
+    )
+    total_pages = int(response.headers.get('Link', '').split(',')[1].split('&page=')[1].split('>')[0]) if 'Link' in response.headers else 1
+
     # Fetch issues created and closed in the quarter with optimized filtering
     page = 1
-    with tqdm(desc="Fetching OpenFL closed issues", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL closed issues", total=total_pages, unit="page") as pbar:
         while True:
             issues = requests.get(
                 f"{OPENFL_GITHUB_API_URL}/issues",
@@ -181,9 +219,24 @@ def fetch_monthly_data(year, month):
             page += 1
             pbar.update(1)
 
+    # Fetch the total number of pages for discussions
+    response = requests.get(
+        f"{OPENFL_GITHUB_API_URL}/discussions",
+        headers=headers,
+        params={
+            "state": "all",
+            "sort": "created",
+            "direction": "desc",
+            "per_page": 100,
+            "since": quarter_start,
+            "until": quarter_end
+        }
+    )
+    total_pages = int(response.headers.get('Link', '').split(',')[1].split('&page=')[1].split('>')[0]) if 'Link' in response.headers else 1
+
     # Fetch discussions created in the quarter and measure time to first comment
     page = 1
-    with tqdm(desc="Fetching OpenFL discussions", unit="page") as pbar:
+    with tqdm(desc="Fetching OpenFL discussions", total=total_pages, unit="page") as pbar:
         while True:
             discussions = requests.get(
                 f"{OPENFL_GITHUB_API_URL}/discussions",
@@ -498,11 +551,26 @@ def fetch_openfl_contrib_data(year, month):
     month_start = start_date.strftime('%Y-%m-%dT%H:%M:%SZ')
     month_end = end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
+    # Fetch the total number of pages for pull requests
+    response = requests.get(
+        f"{OPENFL_CONTRIB_GITHUB_API_URL}/pulls",
+        headers=headers,
+        params={
+            "state": "closed",
+            "sort": "updated",
+            "direction": "desc",
+            "per_page": 100,
+            "since": month_start,
+            "until": month_end
+        }
+    )
+    total_pages = int(response.headers.get('Link', '').split(',')[1].split('&page=')[1].split('>')[0]) if 'Link' in response.headers else 1
+
     # Fetch pull requests data for the selected month
     pulls_data = []
     contributors_set = set()
     page = 1
-    with tqdm(desc="Fetching openfl-contrib PRs", unit="page") as pbar:
+    with tqdm(desc="Fetching openfl-contrib PRs", total=total_pages, unit="page") as pbar:
         while True:
             response = requests.get(
                 f"{OPENFL_CONTRIB_GITHUB_API_URL}/pulls",
