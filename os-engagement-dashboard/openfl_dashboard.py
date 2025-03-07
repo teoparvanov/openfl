@@ -488,9 +488,26 @@ def create_key_partners_figure():
 
     return fig
 
-def fetch_pypi_downloads():
-    # Placeholder for actual retrieval of PyPi download data
-    return 359  # Mock value
+def fetch_pypi_downloads(year, month):
+    api_key = os.getenv('PEPY_API_KEY')
+    if not api_key:
+        raise ValueError("PEPY_API_KEY environment variable not set")
+
+    url = f"https://api.pepy.tech/api/v2/projects/openfl"
+    headers = {
+        'X-API-Key': api_key
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    data = response.json()
+
+    monthly_downloads = 0
+    for date, versions in data['downloads'].items():
+        date_obj = datetime.strptime(date, '%Y-%m-%d')
+        if date_obj.year == year and date_obj.month == month:
+            monthly_downloads += sum(versions.values())
+
+    return monthly_downloads
 
 def fetch_docker_downloads():
     # Placeholder for actual retrieval of Docker download data
@@ -543,7 +560,7 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
     binaries_fig.update_layout(
         height=800,
         title={
-            'text': "OpenFL Binaries (latest stable)",
+            'text': "OpenFL Binaries Downloads (all versions)",
             'y': 0.98,
             'x': 0.5,
             'xanchor': 'center',
@@ -713,7 +730,7 @@ def create_dashboard(year, month, use_mock=False):
     else:
         # Fetch monthly data
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = fetch_monthly_data(year, month)
-        pypi_downloads = fetch_pypi_downloads()
+        pypi_downloads = fetch_pypi_downloads(year, month)
         docker_downloads = fetch_docker_downloads()
 
     # Create figures for GitHub and social media metrics
