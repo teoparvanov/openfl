@@ -501,19 +501,30 @@ def fetch_pypi_downloads(year, month):
     response.raise_for_status()
     data = response.json()
 
-    monthly_downloads = 0
-    for date, versions in data['downloads'].items():
-        date_obj = datetime.strptime(date, '%Y-%m-%d')
-        if date_obj.year == year and date_obj.month == month:
-            monthly_downloads += sum(versions.values())
+    def get_monthly_downloads(year, month):
+        monthly_downloads = 0
+        for date, versions in data['downloads'].items():
+            date_obj = datetime.strptime(date, '%Y-%m-%d')
+            if date_obj.year == year and date_obj.month == month:
+                monthly_downloads += sum(versions.values())
+        return monthly_downloads
 
-    return monthly_downloads
+    current_month_downloads = get_monthly_downloads(year, month)
+    previous_month = month - 1 if month > 1 else 12
+    previous_month_year = year if month > 1 else year - 1
+    previous_month_downloads = get_monthly_downloads(previous_month_year, previous_month)
+
+    two_months_ago = month - 2 if month > 2 else 12 + (month - 2)
+    two_months_ago_year = year if month > 2 else year - 1
+    two_months_ago_downloads = get_monthly_downloads(two_months_ago_year, two_months_ago)
+
+    return current_month_downloads, previous_month_downloads, two_months_ago_downloads
 
 def fetch_docker_downloads():
     # Placeholder for actual retrieval of Docker download data
     return 8  # Mock value
 
-def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
+def create_openfl_binaries_figure(pypi_downloads, docker_downloads, pypi_downloads_past, months, docker_downloads_past):
     # Create gauges for PyPi and Docker downloads
     pypi_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
@@ -529,17 +540,12 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
         title={'text': "Monthly docker downloads"}
     ))
 
-    # Mock data for the past 3 months
-    months = ["Month 1", "Month 2", "Month 3"]
-    pypi_downloads_past = [3000, 3500, 4000]
-    docker_downloads_past = [2000, 2500, 3000]
-
     # Create bar charts for PyPi and Docker downloads
     pypi_bar = go.Figure(data=[
         go.Bar(name='PyPi Downloads', x=months, y=pypi_downloads_past, marker_color='purple')
     ])
     docker_bar = go.Figure(data=[
-        go.Bar(name='Docker Downloads', x=months, y=docker_downloads_past, marker_color='green')
+        go.Bar(name='Docker Downloads', x=months, y=docker_downloads_past, marker_color='green')  # Use docker_downloads_past
     ])
 
     # Combine the gauges and bar charts into a single figure
@@ -727,16 +733,31 @@ def create_dashboard(year, month, use_mock=False):
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = create_mock_data()
         pypi_downloads = 1000  # Mock value
         docker_downloads = 500  # Mock value
+        pypi_downloads_past = [3000, 3500, 4000]  # Mock values
+        months = ["Nov 2024", "Dec 2024", "Jan 2025"]  # Mock months
+        docker_downloads_past = [2000, 2500, 3000]  # Mock values for Docker downloads
     else:
         # Fetch monthly data
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = fetch_monthly_data(year, month)
-        pypi_downloads = fetch_pypi_downloads(year, month)
+        pypi_downloads, previous_month_downloads, two_months_ago_downloads = fetch_pypi_downloads(year, month)
+        pypi_downloads_past = [two_months_ago_downloads, previous_month_downloads, pypi_downloads]
         docker_downloads = fetch_docker_downloads()
+        docker_downloads_past = [2000, 2500, docker_downloads]  # Static values for Docker downloads
+
+        # Get the month names
+        current_month_name = datetime(year, month, 1).strftime('%b %Y')
+        previous_month = month - 1 if month > 1 else 12
+        previous_month_year = year if month > 1 else year - 1
+        previous_month_name = datetime(previous_month_year, previous_month, 1).strftime('%b %Y')
+        two_months_ago = month - 2 if month > 2 else 12 + (month - 2)
+        two_months_ago_year = year if month > 2 else year - 1
+        two_months_ago_name = datetime(two_months_ago_year, two_months_ago, 1).strftime('%b %Y')
+        months = [two_months_ago_name, previous_month_name, current_month_name]
 
     # Create figures for GitHub and social media metrics
     initial_engagement_fig = create_initial_engagement_figure(forks_count, stars_count)
     key_partners_fig = create_key_partners_figure()
-    binaries_fig = create_openfl_binaries_figure(pypi_downloads, docker_downloads)
+    binaries_fig = create_openfl_binaries_figure(pypi_downloads, docker_downloads, pypi_downloads_past, months, docker_downloads_past)
     github_fig = create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count)
     social_media_fig = create_social_media_metrics_figure()
     contrib_fig = create_openfl_contrib_figure(year, month, use_mock)
