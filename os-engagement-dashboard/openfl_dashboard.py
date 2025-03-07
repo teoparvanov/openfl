@@ -501,7 +501,7 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
     pypi_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=pypi_downloads,
-        gauge={'axis': {'range': [0, 5000]}},
+        gauge={'axis': {'range': [0, 5000]}, 'bar': {'color': 'purple'}},
         title={'text': "Monthly PyPi downloads"}
     ))
 
@@ -519,7 +519,7 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
 
     # Create bar charts for PyPi and Docker downloads
     pypi_bar = go.Figure(data=[
-        go.Bar(name='PyPi Downloads', x=months, y=pypi_downloads_past, marker_color='green')
+        go.Bar(name='PyPi Downloads', x=months, y=pypi_downloads_past, marker_color='purple')
     ])
     docker_bar = go.Figure(data=[
         go.Bar(name='Docker Downloads', x=months, y=docker_downloads_past, marker_color='green')
