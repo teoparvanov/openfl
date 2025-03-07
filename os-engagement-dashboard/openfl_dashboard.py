@@ -512,19 +512,36 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads):
         title={'text': "Monthly docker downloads"}
     ))
 
-    # Combine the gauges into a single figure
+    # Mock data for the past 3 months
+    months = ["Month 1", "Month 2", "Month 3"]
+    pypi_downloads_past = [3000, 3500, 4000]
+    docker_downloads_past = [2000, 2500, 3000]
+
+    # Create bar charts for PyPi and Docker downloads
+    pypi_bar = go.Figure(data=[
+        go.Bar(name='PyPi Downloads', x=months, y=pypi_downloads_past, marker_color='green')
+    ])
+    docker_bar = go.Figure(data=[
+        go.Bar(name='Docker Downloads', x=months, y=docker_downloads_past, marker_color='green')
+    ])
+
+    # Combine the gauges and bar charts into a single figure
     binaries_fig = sp.make_subplots(
-        rows=1, cols=2,
-        specs=[[{"type": "indicator"}, {"type": "indicator"}]],
+        rows=2, cols=2,
+        specs=[[{"type": "indicator"}, {"type": "indicator"}], [{"type": "bar"}, {"type": "bar"}]],
         vertical_spacing=0.1
     )
     for trace in pypi_gauge.data:
         binaries_fig.add_trace(trace, row=1, col=1)
     for trace in docker_gauge.data:
         binaries_fig.add_trace(trace, row=1, col=2)
+    for trace in pypi_bar.data:
+        binaries_fig.add_trace(trace, row=2, col=1)
+    for trace in docker_bar.data:
+        binaries_fig.add_trace(trace, row=2, col=2)
 
     binaries_fig.update_layout(
-        height=400,
+        height=800,
         title={
             'text': "OpenFL Binaries (latest stable)",
             'y': 0.98,
