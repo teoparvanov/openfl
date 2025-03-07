@@ -380,7 +380,7 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
     github_fig.update_layout(
         height=800,
         title={
-            'text': "OpenFL GitHub Metrics",
+            'text': "OpenFL GitHub Activity",
             'y': 0.98,
             'x': 0.5,
             'xanchor': 'center',
@@ -433,7 +433,7 @@ def create_social_media_metrics_figure():
     social_media_fig.update_layout(
         height=400,
         title={
-            'text': "Social Media Metrics",
+            'text': "Social Media Engagement",
             'y': 0.98,
             'x': 0.5,
             'xanchor': 'center',
@@ -680,7 +680,7 @@ def create_openfl_contrib_figure(year, month, use_mock=False):
     contrib_fig.update_layout(
         height=400,
         title={
-            'text': "OpenFL-Contrib GitHub Metrics",
+            'text': "OpenFL-Contrib GitHub Activity",
             'y': 0.98,
             'x': 0.5,
             'xanchor': 'center',
