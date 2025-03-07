@@ -520,9 +520,12 @@ def fetch_pypi_downloads(year, month):
 
     return current_month_downloads, previous_month_downloads, two_months_ago_downloads
 
-def fetch_docker_downloads():
-    # Placeholder for actual retrieval of Docker download data
-    return 8  # Mock value
+def fetch_docker_downloads(year, month):
+    current_month_downloads = 51
+    previous_month_downloads = 0
+    two_months_ago_downloads = 0
+
+    return current_month_downloads, previous_month_downloads, two_months_ago_downloads
 
 def create_openfl_binaries_figure(pypi_downloads, docker_downloads, pypi_downloads_past, months, docker_downloads_past):
     # Create gauges for PyPi and Docker downloads
@@ -741,8 +744,8 @@ def create_dashboard(year, month, use_mock=False):
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = fetch_monthly_data(year, month)
         pypi_downloads, previous_month_downloads, two_months_ago_downloads = fetch_pypi_downloads(year, month)
         pypi_downloads_past = [two_months_ago_downloads, previous_month_downloads, pypi_downloads]
-        docker_downloads = fetch_docker_downloads()
-        docker_downloads_past = [2000, 2500, docker_downloads]  # Static values for Docker downloads
+        docker_downloads, previous_month_docker_downloads, two_months_ago_docker_downloads = fetch_docker_downloads(year, month)
+        docker_downloads_past = [two_months_ago_docker_downloads, previous_month_docker_downloads, docker_downloads]
 
         # Get the month names
         current_month_name = datetime(year, month, 1).strftime('%b %Y')
