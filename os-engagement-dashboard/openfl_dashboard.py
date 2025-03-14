@@ -532,14 +532,14 @@ def create_openfl_binaries_figure(pypi_downloads, docker_downloads, pypi_downloa
     pypi_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=pypi_downloads,
-        gauge={'axis': {'range': [0, 5000]}, 'bar': {'color': 'purple'}},
+        gauge={'axis': {'range': [0, 3000]}, 'bar': {'color': 'purple'}},
         title={'text': "Monthly PyPi downloads"}
     ))
 
     docker_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=docker_downloads,
-        gauge={'axis': {'range': [0, 5000]}},
+        gauge={'axis': {'range': [0, 200]}},
         title={'text': "Monthly docker downloads"}
     ))
 
@@ -735,10 +735,10 @@ def create_dashboard(year, month, use_mock=False):
         # Use mock data
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = create_mock_data()
         pypi_downloads = 1000  # Mock value
-        docker_downloads = 500  # Mock value
-        pypi_downloads_past = [3000, 3500, 4000]  # Mock values
+        docker_downloads = 50  # Mock value
+        pypi_downloads_past = [500, 1000, 1500]  # Mock values
         months = ["Nov 2024", "Dec 2024", "Jan 2025"]  # Mock months
-        docker_downloads_past = [2000, 2500, 3000]  # Mock values for Docker downloads
+        docker_downloads_past = [50, 100, 150]  # Mock values for Docker downloads
     else:
         # Fetch monthly data
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = fetch_monthly_data(year, month)
