@@ -715,7 +715,7 @@ def create_initial_engagement_figure(forks_count, stars_count):
     # Create a line chart for stars
     stars_df = pd.DataFrame(stars_count, columns=['starred_at'])
     stars_df['count'] = range(1, len(stars_df) + 1)
-    stars_line_chart = px.line(stars_df, x='starred_at', y='count')
+    stars_line_chart = px.line(stars_df, x='starred_at', y='count', line_shape='linear', color_discrete_sequence=['gold'])
 
     # Create static numbers for stars and forks
     total_forks = len(forks_count)
@@ -730,7 +730,7 @@ def create_initial_engagement_figure(forks_count, stars_count):
         mode="number",
         value=total_stars,
         title={'text': "Total Stars"},
-        number={'font': {'size': 40, 'color': 'blue'}}
+        number={'font': {'size': 40, 'color': 'gold'}}
     ))
 
     # Combine the initial engagement metrics into a single figure
@@ -813,10 +813,10 @@ def create_dashboard(year, month, use_mock=False, publish=False):
 
     # Combine all figures into a single HTML file with a title
     with open("/mnt/c/Users/tparvano/Downloads/openfl_engagement_dashboard.html", "w") as f:
-        f.write(f"<h1 style='text-align:center;'>OpenFL Community Engagement Dashboard for {month_name} {year}</h1>")
+        f.write(f"<h1 style='text-align:center; font-size: 32px;'>OpenFL Community Engagement Dashboard for {month_name} {year}</h1>")
         if use_mock:
             f.write("<h2 style='text-align:center; background-color: yellow;'>(RENDERED WITH MOCK DATA)</h2>")
-        f.write("<div style='margin-top: 20px;'></div>")  # Add space between title and figure
+        f.write("<div style='margin-top: 20px;'></div>")
         f.write(initial_engagement_fig.to_html(full_html=False, include_plotlyjs='cdn'))
         f.write(key_partners_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(binaries_fig.to_html(full_html=False, include_plotlyjs=False))
