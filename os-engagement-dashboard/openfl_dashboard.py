@@ -314,7 +314,7 @@ def create_mock_data():
 
     return monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count
 
-def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count):
+def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count, publish=False):
     # Create GitHub repository metrics gauges
     pr_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
@@ -330,12 +330,13 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
         title={'text': "Code Contributors (All)"}
     ))
 
-    non_intel_contributors_gauge = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=non_intel_contributors,
-        gauge={'axis': {'range': [0, 100]}},
-        title={'text': "Code Contributors (Non-Intel)"}
-    ))
+    if not publish:
+        non_intel_contributors_gauge = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=non_intel_contributors,
+            gauge={'axis': {'range': [0, 100]}},
+            title={'text': "Code Contributors (Non-Intel)"}
+        ))
 
     issue_close_time_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
@@ -351,31 +352,44 @@ def create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_
         title={'text': "Average PR Response Time (Days)"}
     ))
 
-    discussion_response_time_gauge = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=avg_discussion_response_time,
-        gauge={'axis': {'range': [0, 30]}},
-        title={'text': "Average Discussion Response Time (Days)"}
-    ))
+    if not publish:
+        discussion_response_time_gauge = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=avg_discussion_response_time,
+            gauge={'axis': {'range': [0, 30]}},
+            title={'text': "Average Discussion Response Time (Days)"}
+        ))
 
     # Combine the GitHub metrics into a single figure
-    github_fig = sp.make_subplots(
-        rows=3, cols=2, 
-        specs=[[{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
-        vertical_spacing=0.1
-    )
+    if publish:
+        github_fig = sp.make_subplots(
+            rows=2, cols=2, 
+            specs=[[{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
+            vertical_spacing=0.1
+        )
+    else:
+        github_fig = sp.make_subplots(
+            rows=3, cols=2, 
+            specs=[[{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}], [{"type": "indicator"}, {"type": "indicator"}]],
+            vertical_spacing=0.1
+        )
+
     for trace in pr_gauge.data:
         github_fig.add_trace(trace, row=1, col=1)
     for trace in contributors_gauge.data:
         github_fig.add_trace(trace, row=1, col=2)
     for trace in issue_close_time_gauge.data:
         github_fig.add_trace(trace, row=2, col=1)
-    for trace in non_intel_contributors_gauge.data:
-        github_fig.add_trace(trace, row=2, col=2)
-    for trace in pr_response_time_gauge.data:
-        github_fig.add_trace(trace, row=3, col=1)
-    for trace in discussion_response_time_gauge.data:
-        github_fig.add_trace(trace, row=3, col=2)
+    if not publish:
+        for trace in non_intel_contributors_gauge.data:
+            github_fig.add_trace(trace, row=2, col=2)
+        for trace in pr_response_time_gauge.data:
+            github_fig.add_trace(trace, row=3, col=1)
+        for trace in discussion_response_time_gauge.data:
+            github_fig.add_trace(trace, row=3, col=2)
+    else:
+        for trace in pr_response_time_gauge.data:
+            github_fig.add_trace(trace, row=2, col=2)
 
     github_fig.update_layout(
         height=800,
@@ -730,7 +744,7 @@ def create_initial_engagement_figure(forks_count, stars_count):
 
     return initial_engagement_fig
 
-def create_dashboard(year, month, use_mock=False):
+def create_dashboard(year, month, use_mock=False, publish=False):
     if use_mock:
         # Use mock data
         monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count = create_mock_data()
@@ -757,13 +771,22 @@ def create_dashboard(year, month, use_mock=False):
         two_months_ago_name = datetime(two_months_ago_year, two_months_ago, 1).strftime('%b %Y')
         months = [two_months_ago_name, previous_month_name, current_month_name]
 
+        if publish:
+            # Fetch openfl-contrib data
+            contrib_pulls_data, contrib_contributors_set = fetch_openfl_contrib_data(year, month)
+            monthly_pulls += len(contrib_pulls_data)
+            monthly_contributors += len(contrib_contributors_set)
+            non_intel_contributors += len([contributor for contributor in contrib_contributors_set if contributor in KNOWN_EXTERNAL_CONTRIBUTORS])
+
     # Create figures for GitHub and social media metrics
     initial_engagement_fig = create_initial_engagement_figure(forks_count, stars_count)
     key_partners_fig = create_key_partners_figure()
     binaries_fig = create_openfl_binaries_figure(pypi_downloads, docker_downloads, pypi_downloads_past, months, docker_downloads_past)
-    github_fig = create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count)
+    github_fig = create_github_metrics_figure(monthly_pulls, monthly_contributors, non_intel_contributors, avg_issue_close_time, forks_count, avg_pr_response_time, avg_discussion_response_time, stars_count, publish)
     social_media_fig = create_social_media_metrics_figure()
-    contrib_fig = create_openfl_contrib_figure(year, month, use_mock)
+
+    if not publish:
+        contrib_fig = create_openfl_contrib_figure(year, month, use_mock)
 
     # Get the month name
     month_name = datetime(year, month, 1).strftime('%B')
@@ -773,11 +796,13 @@ def create_dashboard(year, month, use_mock=False):
         f.write(f"<h1 style='text-align:center;'>OpenFL Community Engagement Dashboard for {month_name} {year}</h1>")
         if use_mock:
             f.write("<h2 style='text-align:center; background-color: yellow;'>(RENDERED WITH MOCK DATA)</h2>")
+        f.write("<div style='margin-top: 20px;'></div>")  # Add space between title and figure
         f.write(initial_engagement_fig.to_html(full_html=False, include_plotlyjs='cdn'))
         f.write(key_partners_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(binaries_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(github_fig.to_html(full_html=False, include_plotlyjs=False))
-        f.write(contrib_fig.to_html(full_html=False, include_plotlyjs=False))
+        if not publish:
+            f.write(contrib_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write(social_media_fig.to_html(full_html=False, include_plotlyjs=False))
         f.write("</body></html>")
     
@@ -788,9 +813,10 @@ def main():
     parser.add_argument("--year", type=int, required=True, help="Year for the dashboard")
     parser.add_argument("--month", type=int, required=True, help="Month for the dashboard")
     parser.add_argument("--mock", action="store_true", help="Use mock data instead of fetching from APIs")
+    parser.add_argument("--publish", action="store_true", help="A version of the dashboard ready for publishing")
     args = parser.parse_args()
 
-    create_dashboard(year=args.year, month=args.month, use_mock=args.mock)
+    create_dashboard(year=args.year, month=args.month, use_mock=args.mock, publish=args.publish)
 
 if __name__ == "__main__":
     main()
