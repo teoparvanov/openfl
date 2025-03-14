@@ -717,10 +717,26 @@ def create_initial_engagement_figure(forks_count, stars_count):
     stars_df['count'] = range(1, len(stars_df) + 1)
     stars_line_chart = px.line(stars_df, x='starred_at', y='count')
 
+    # Create static numbers for stars and forks
+    total_forks = len(forks_count)
+    total_stars = len(stars_count)
+    forks_indicator = go.Figure(go.Indicator(
+        mode="number",
+        value=total_forks,
+        title={'text': "Total Forks"},
+        number={'font': {'size': 40, 'color': 'blue'}}
+    ))
+    stars_indicator = go.Figure(go.Indicator(
+        mode="number",
+        value=total_stars,
+        title={'text': "Total Stars"},
+        number={'font': {'size': 40, 'color': 'blue'}}
+    ))
+
     # Combine the initial engagement metrics into a single figure
     initial_engagement_fig = sp.make_subplots(
-        rows=1, cols=2,
-        specs=[[{"type": "xy"}, {"type": "xy"}]],
+        rows=2, cols=2,
+        specs=[[{"type": "xy"}, {"type": "xy"}], [{"type": "indicator"}, {"type": "indicator"}]],
         subplot_titles=("Number of Stars Over Time", "Number of Forks Over Time"),
         vertical_spacing=0.1
     )
@@ -728,9 +744,13 @@ def create_initial_engagement_figure(forks_count, stars_count):
         initial_engagement_fig.add_trace(trace, row=1, col=1)
     for trace in forks_line_chart.data:
         initial_engagement_fig.add_trace(trace, row=1, col=2)
+    for trace in stars_indicator.data:
+        initial_engagement_fig.add_trace(trace, row=2, col=1)
+    for trace in forks_indicator.data:
+        initial_engagement_fig.add_trace(trace, row=2, col=2)
 
     initial_engagement_fig.update_layout(
-        height=400,
+        height=600,
         title={
             'text': "Initial Engagement",
             'y': 0.98,
