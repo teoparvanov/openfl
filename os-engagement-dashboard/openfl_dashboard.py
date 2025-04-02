@@ -426,7 +426,7 @@ def create_social_media_metrics_figure():
 
     community_meeting_attendees_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=18,  # Mock value
+        value=14,  # Mock value
         gauge={'axis': {'range': [0, 100]}},
         title={'text': "Community Meeting Attendees"}
     ))
@@ -537,8 +537,8 @@ def fetch_pypi_downloads(year, month):
     return current_month_downloads, previous_month_downloads, two_months_ago_downloads
 
 def fetch_docker_downloads(year, month):
-    current_month_downloads = 51
-    previous_month_downloads = 0
+    current_month_downloads = 42
+    previous_month_downloads = 51
     two_months_ago_downloads = 0
 
     return current_month_downloads, previous_month_downloads, two_months_ago_downloads
