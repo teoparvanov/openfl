@@ -18,7 +18,8 @@ KNOWN_EXTERNAL_CONTRIBUTORS = {
     "ishant162",
     "scngupta-dsp",
     "changhongyan123",
-    "yarikoptic"
+    "yarikoptic",
+    "sarthakpati"
 }
 
 def fetch_github_data():
